@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src='node_modules\jquery\dist\jquery.js'></script>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
+
+    <title>countries api</title>
+</head>
+
+<body>
+    <div col-md-12>
+        <form class="col-md-10">
+            <div class="form-group">
+                <label for="country-name">Country Name</label>
+                <input type="text" class="form-control" id="country-name" placeholder="Enter country name">
+                <span id="error-message"></span>
+            </div>
+            <button type="submit" class="btn btn-primary" id="search-country-btn">Search</button>
+            <button type="submit" class="btn btn-primary" id="search-all-countries-btn">ALL</button>
+        </form>
+
+        <div id="results" class="col-md-10">
+
+        </div>
+    </div>
+
+    <script>
+
+        //get all countries when "all" button is clicked
+        $('#search-all-countries-btn').click(function (e) {
+            e.preventDefault();
+
+            //clear the results
+            $('#results').html('');
+
+            //clear any error message
+            clearErrorMessage();
+
+            //find the data
+            findCountryData("https://restcountries.eu/rest/v2/all");
+        });
+
+        //search by a specific country when "search" button is clicked
+        $('#search-country-btn').click(function (e) {
+            e.preventDefault();
+
+            //clear the results
+            $('#results').html('');
+
+            //clear any error message
+            clearErrorMessage();
+
+            let countryName = $('#country-name').val();
+            if (!validateCountryNameInput(countryName)) {
+                return false;
+            } else {
+                //find the data
+                findCountryData("https://restcountries.eu/rest/v2/name/" + countryName)
+            }
+        });
+
+        function findCountryData(url) {
+
+            $.ajax({
+                url: url,
+                method: 'GET'
+            }).done(function (d) {
+                if (typeof d === 'string')
+                    d = JSON.parse(d);
+                //console.log(d);
+                let resultsArray = d;
+
+                for (let i = 0; i < resultsArray.length; i++) {
+                    let t = countriesTemplate;
+
+                    let currenciesArrayObj = [];
+                    for (let j = 0; j < resultsArray[i].currencies.length; j++) {
+                        currenciesArrayObj.push(resultsArray[i].currencies[j]);
+                    }
+
+                    let currenciesArray = JSON.stringify(currenciesArrayObj);
+
+                    t = t.replace('{{name}}', resultsArray[i].name);
+                    t = t.replace('{{topLevelDomain}}', resultsArray[i].topLevelDomain);
+                    t = t.replace('{{capital}}', resultsArray[i].capital);
+                    t = t.replace('{{currencies}}', currenciesArray);
+                    t = t.replace('{{flag}}', resultsArray[i].flag);
+
+                    $('#results').append(t);
+                }
+            }).fail(function (e) {
+                console.log(e.status);
+            });
+        }
+
+        function clearErrorMessage() {
+            $('#error-message').html('');
+        }
+
+        //validate that a country name is filled out
+        function validateCountryNameInput(countryName) {
+            if (countryName == '') {
+                $('#error-message').html('You need to enter a country name in order to search by country!');
+                return false;
+            }
+            return true;
+        }
+
+        //template for a country
+        const countriesTemplate =
+
+            `<div class="container-fluid">
+                <div class="row no-gutters">
+                    <div id="country" class="col-md-10"> 
+                        <img id="flag" src="{{flag}}" class="float-left pull-left mr-2">
+                        </img>
+                        <div class="country-text">
+                            <p id="name"><span class="label"> Name: </span> {{name}}</p>
+                            <p id="top-level-domain"><span class="label"> Top Level Domain: </span> {{topLevelDomain}}</p>
+                            <p id="capital"><span class="label"> Capital: </span> {{capital}}</p>
+                            <p id="currencies"><span class="label"> Currencies: </span>{{currencies}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>`
+
+    </script>
+</body>
+
+</html>

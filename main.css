@@ -1,0 +1,40 @@
+.panel-heading{
+    background-color:lightblue;
+    padding:10px;
+    font-size: 1.5em;
+}
+
+#country, form{
+    margin:20px;
+}
+
+#country, img{
+    border: 1px solid black;
+}
+
+#country{
+    height:180px;
+}
+
+img{
+    height: 100%;
+}
+
+.no-gutters {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+#error-message{
+    color:red;
+    font-size:1.1em;
+    font-style: italic
+}
+
+.label{
+    font-weight:700;
+}
+
+.country-text{
+    margin-top:1%;
+}
